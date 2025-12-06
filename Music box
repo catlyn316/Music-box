@@ -1,0 +1,495 @@
+-- Roblox 音樂播放器腳本 (最終完整版，含細節分區)
+-- 只有你自己能聽到音樂
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- 檢查是否已經存在 GUI，避免重複生成
+if PlayerGui:FindFirstChild("MusicPlayerGui") then
+    PlayerGui.MusicPlayerGui:Destroy()
+end
+
+-- 創建 ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MusicPlayerGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- 創建主框架
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 350, 0, 200)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -100)
+MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.ClipsDescendants = false 
+MainFrame.Parent = ScreenGui
+
+-- 添加圓角
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+-- 標題
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, -80, 0, 40)
+Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Title.Text = "🎵 音樂播放器"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 10)
+TitleCorner.Parent = Title
+
+-- 關閉按鈕 (X)
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 35, 0, 35)
+CloseButton.Position = UDim2.new(1, -38, 0, 2.5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.TextSize = 20
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.ZIndex = 2
+CloseButton.Parent = MainFrame
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = CloseButton
+
+-- 縮小按鈕 (-)
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Size = UDim2.new(0, 35, 0, 35)
+MinimizeButton.Position = UDim2.new(1, -78, 0, 2.5)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 50, 180) 
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButton.TextSize = 25
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.ZIndex = 2
+MinimizeButton.Parent = MainFrame
+
+local MinimizeCorner = Instance.new("UICorner")
+MinimizeCorner.CornerRadius = UDim.new(0, 8)
+MinimizeCorner.Parent = MinimizeButton
+
+-- 音樂 ID 輸入框
+local InputBox = Instance.new("TextBox")
+InputBox.Name = "InputBox"
+InputBox.Size = UDim2.new(0.85, 0, 0, 35)
+InputBox.Position = UDim2.new(0.075, 0, 0, 60)
+InputBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+InputBox.Text = ""
+InputBox.PlaceholderText = "輸入音樂 ID..."
+InputBox.TextColor3 = Color3.new(1, 1, 1)
+InputBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+InputBox.TextSize = 16
+InputBox.Font = Enum.Font.Gotham
+InputBox.Parent = MainFrame
+
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 8)
+InputCorner.Parent = InputBox
+
+-- 播放按鈕
+local PlayButton = Instance.new("TextButton")
+PlayButton.Name = "PlayButton"
+PlayButton.Size = UDim2.new(0.28, 0, 0, 35) 
+PlayButton.Position = UDim2.new(0.075, 0, 0, 110)
+PlayButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+PlayButton.Text = "▶ 播放"
+PlayButton.TextColor3 = Color3.new(1, 1, 1)
+PlayButton.TextSize = 16
+PlayButton.Font = Enum.Font.GothamBold
+PlayButton.Parent = MainFrame
+
+local PlayCorner = Instance.new("UICorner")
+PlayCorner.CornerRadius = UDim.new(0, 8)
+PlayCorner.Parent = PlayButton
+
+-- 停止遊戲音效按鈕 
+local StopGameSoundButton = Instance.new("TextButton")
+StopGameSoundButton.Name = "StopGameSoundButton"
+StopGameSoundButton.Size = UDim2.new(0.28, 0, 0, 35)
+StopGameSoundButton.Position = UDim2.new(0.36, 0, 0, 110)
+StopGameSoundButton.BackgroundColor3 = Color3.fromRGB(150, 50, 250) 
+StopGameSoundButton.Text = "🔇 停止原本音效"
+StopGameSoundButton.TextColor3 = Color3.new(1, 1, 1)
+StopGameSoundButton.TextSize = 13
+StopGameSoundButton.Font = Enum.Font.GothamBold
+StopGameSoundButton.Parent = MainFrame
+
+local StopGameSoundCorner = Instance.new("UICorner")
+StopGameSoundCorner.CornerRadius = UDim.new(0, 8)
+StopGameSoundCorner.Parent = StopGameSoundButton
+
+-- 停止按鈕
+local StopButton = Instance.new("TextButton")
+StopButton.Name = "StopButton"
+StopButton.Size = UDim2.new(0.28, 0, 0, 35) 
+StopButton.Position = UDim2.new(0.645, 0, 0, 110)
+StopButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+StopButton.Text = "⏹ 停止"
+StopButton.TextColor3 = Color3.new(1, 1, 1)
+StopButton.TextSize = 16
+StopButton.Font = Enum.Font.GothamBold
+StopButton.Parent = MainFrame
+
+local StopCorner = Instance.new("UICorner")
+StopCorner.CornerRadius = UDim.new(0, 8)
+StopCorner.Parent = StopButton
+
+-- 狀態文字
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Name = "StatusLabel"
+StatusLabel.Size = UDim2.new(0.85, 0, 0, 25)
+StatusLabel.Position = UDim2.new(0.075, 0, 0, 160)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = "準備播放"
+StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+StatusLabel.TextSize = 14
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.Parent = MainFrame
+
+-- 歌單展開按鈕
+local PlaylistToggle = Instance.new("TextButton")
+PlaylistToggle.Name = "PlaylistToggle"
+PlaylistToggle.Size = UDim2.new(0, 30, 0, 30)
+PlaylistToggle.Position = UDim2.new(1, 10, 0, 5)
+PlaylistToggle.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+PlaylistToggle.Text = "♫"
+PlaylistToggle.TextColor3 = Color3.new(1, 1, 1)
+PlaylistToggle.TextSize = 18
+PlaylistToggle.Font = Enum.Font.GothamBold
+PlaylistToggle.ZIndex = 2
+PlaylistToggle.Parent = MainFrame
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 8)
+ToggleCorner.Parent = PlaylistToggle
+
+-- 歌單框架
+local PlaylistFrame = Instance.new("Frame")
+PlaylistFrame.Name = "PlaylistFrame"
+PlaylistFrame.Size = UDim2.new(0, 300, 0, 0)
+PlaylistFrame.Position = UDim2.new(1, 15, 0, 0)
+PlaylistFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+PlaylistFrame.BorderSizePixel = 0
+PlaylistFrame.ClipsDescendants = true
+PlaylistFrame.ZIndex = 3
+PlaylistFrame.Parent = MainFrame
+
+local PlaylistCorner = Instance.new("UICorner")
+PlaylistCorner.CornerRadius = UDim.new(0, 10)
+PlaylistCorner.Parent = PlaylistFrame
+
+-- 歌單標題
+local PlaylistTitle = Instance.new("TextLabel")
+PlaylistTitle.Name = "PlaylistTitle"
+PlaylistTitle.Size = UDim2.new(1, 0, 0, 35)
+PlaylistTitle.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+PlaylistTitle.Text = "📋 分類歌單"
+PlaylistTitle.TextColor3 = Color3.new(1, 1, 1)
+PlaylistTitle.TextSize = 16
+PlaylistTitle.Font = Enum.Font.GothamBold
+PlaylistTitle.ZIndex = 4
+PlaylistTitle.Parent = PlaylistFrame
+
+local PlaylistTitleCorner = Instance.new("UICorner")
+PlaylistTitleCorner.CornerRadius = UDim.new(0, 10)
+PlaylistTitleCorner.Parent = PlaylistTitle
+
+-- 歌單滾動框
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Name = "ScrollFrame"
+ScrollFrame.Size = UDim2.new(1, -10, 1, -40)
+ScrollFrame.Position = UDim2.new(0, 5, 0, 38)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.ScrollBarThickness = 8
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+ScrollFrame.ZIndex = 4
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ScrollFrame.Parent = PlaylistFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Parent = ScrollFrame
+
+-- ⬇️⬇️⬇️ 歌單數據 (含分區標題和子分區) ⬇️⬇️⬇️
+-- 使用 isHeader = true 來標記這是一個分區標題，而不是歌曲
+local Playlist = {
+    -- === 主分區：所有遊戲皆可用 ===
+    {isHeader = true, name = "✅ 1. 所有遊戲皆可用", color = Color3.fromRGB(150, 255, 150)},
+
+    -- 1.1 常規歌曲 (不需要額外標籤)
+    {id = "1837879082", name = "天堂瀑布 (Up Theme)"},
+    {id = "142376088", name = "下塔可雨啦！(Raining Tacos)"},
+    {id = "1845149698", name = "Seek & Destroy"}, 
+    {id = "1837015626", name = "Tokyo drift"},
+    {id = "1840511219", name = "Funky fanfare"},
+    {id = "1841647093", name = "Life in an elevator"},
+    {id = "1848354536", name = "Relaxed scene"},
+    {id = "1840684529", name = "Cool vibes"},
+    {id = "109504331469029", name = "Anxiety"},
+    {id = "71934965392436", name = "Mesmerizer (clown remix)"},
+    {id = "109606503605402", name = "Hammer of justice"},
+    {id = "73972570177022", name = "APOC00LYPSE"},
+    {id = "134884767490882", name = "Hot-topic havoc"},
+    {id = "131562996340874", name = "Disbelief (phase 2)"},
+    {id = "115877769571526", name = "Compass"},
+    {id = "98337901681441", name = "Mente ma (吃子彈囉）"},
+    {id = "76760458012018", name = "Patches of violet"},
+    {id = "95455387850059", name = "It’s tv time"},
+    {id = "90041337158549", name = "Showtime"},
+    {id = "83496790534252", name = "Law 1:you cannot win"},
+    {id = "138740386053898", name = "Atsituab Leinad"},
+    {id = "130235435158600", name = "Last goodbye (remix)"},
+    {id = "1845075999", name = "千與千尋"},
+    {id = "9045766074", name = "The four seasons"},
+
+    -- 1.2 子分區：die of death (使用 isSubHeader 區分顏色)
+    {isHeader = true, name = "💀 die of death", color = Color3.fromRGB(200, 100, 100)}, 
+    {id = "76471063800650", name = "The angel bleeds"},
+    {id = "124255779263026", name = "Y2K"},
+    {id = "135090256319340", name = "Starvation"},
+    {id = "104718892355507", name = "Est-ce ta crate"},
+    {id = "98528029345931", name = "Scribble tickle bop"},
+    {id = "128855377868949", name = "Eternity"},
+    {id = "105782075849353", name = "Careless"},
+    {id = "99138872078350", name = "Opperior"},
+    {id = "118464339934526", name = "A friend’s Bro"},
+    {id = "85741102771968", name = "Insanely"},
+    {id = "127402449230009", name = "Orchestraful"},
+
+    -- === 主分區：非所有遊戲可用 ===
+    {isHeader = true, name = "⚠️ 2. 非所有遊戲可用", color = Color3.fromRGB(255, 200, 0)},
+    {id = "86973739704300", name = "Teto AKAGE"},
+    {id = "96357207714662", name = "Stronger than you (Chara)"},
+    {id = "129939110353436", name = "Vanity"},
+    {id = "72227777551487", name = "Burnout"},
+    {id = "71468509612665", name = "Dragon ball super"},
+    {id = "123743377480053", name = "God only knows (Kj)"},
+}
+-- ⬆️⬆️⬆️ 歌單數據 ⬆️⬆️⬆️
+
+-- 創建歌單 UI 元素
+for i, item in ipairs(Playlist) do
+    if item.isHeader then
+        -- 創建分區標題 (高度較小，背景較深)
+        local HeaderLabel = Instance.new("TextLabel")
+        HeaderLabel.Name = "Header" .. i
+        HeaderLabel.Size = UDim2.new(1, -10, 0, 30)
+        HeaderLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- 深色背景
+        HeaderLabel.Text = item.name
+        HeaderLabel.TextColor3 = item.color or Color3.fromRGB(255, 200, 0) -- 根據分類調整顏色
+        HeaderLabel.TextSize = 14
+        HeaderLabel.Font = Enum.Font.GothamBlack
+        HeaderLabel.ZIndex = 5
+        HeaderLabel.Parent = ScrollFrame
+        
+        local HeaderCorner = Instance.new("UICorner")
+        HeaderCorner.CornerRadius = UDim.new(0, 6)
+        HeaderCorner.Parent = HeaderLabel
+    else
+        -- 創建歌曲按鈕
+        local SongButton = Instance.new("TextButton")
+        SongButton.Name = "Song" .. i
+        SongButton.Size = UDim2.new(1, -10, 0, 50)
+        SongButton.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+        SongButton.Text = item.name .. "\n" .. item.id
+        SongButton.TextColor3 = Color3.new(1, 1, 1)
+        SongButton.TextSize = 14
+        SongButton.Font = Enum.Font.Gotham
+        SongButton.ZIndex = 5
+        SongButton.Parent = ScrollFrame
+        
+        local SongCorner = Instance.new("UICorner")
+        SongCorner.CornerRadius = UDim.new(0, 8)
+        SongCorner.Parent = SongButton
+        
+        -- 點擊歌曲按鈕
+        SongButton.MouseButton1Click:Connect(function()
+            InputBox.Text = item.id
+            StatusLabel.Text = "已選擇: " .. item.name
+            StatusLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+        end)
+        
+        -- 懸停效果
+        SongButton.MouseEnter:Connect(function()
+            SongButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+        end)
+        
+        SongButton.MouseLeave:Connect(function()
+            SongButton.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+        end)
+    end
+end
+
+-- 自動更新滾動框大小
+local function UpdateScrollFrame()
+    local contentSize = UIListLayout.AbsoluteContentSize
+    -- 確保足夠顯示所有內容
+    ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, math.max(300, contentSize.Y + 20))
+end
+
+UpdateScrollFrame()
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateScrollFrame)
+
+-- 狀態變量
+local playlistOpen = false
+local isMinimized = false
+local CurrentSound = nil
+
+-- 播放功能
+local function PlayMusic(soundId)
+    print("嘗試播放音樂 ID:", soundId)
+    if CurrentSound then CurrentSound:Destroy() end
+    
+    CurrentSound = Instance.new("Sound")
+    CurrentSound.Name = "CustomMusic"
+    CurrentSound.SoundId = "rbxassetid://" .. soundId
+    CurrentSound.Volume = 0.5
+    CurrentSound.Looped = true
+    CurrentSound.Parent = game:GetService("SoundService")
+    
+    CurrentSound:Play()
+    StatusLabel.Text = "正在播放: " .. soundId
+    StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+end
+
+-- 停止功能
+local function StopMusic()
+    if CurrentSound then
+        CurrentSound:Stop()
+        CurrentSound:Destroy()
+        CurrentSound = nil
+        StatusLabel.Text = "已停止播放"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 150, 0)
+    end
+end
+
+-- 停止遊戲中所有 Sound 實例
+local function StopAllGameSounds()
+    local count = 0
+    -- 遍歷所有可能包含 Sound 的地方 (Workspace, PlayerGui, SoundService等)
+    local containers = {workspace, game:GetService("SoundService"), game:GetService("ReplicatedStorage"), LocalPlayer}
+    
+    for _, container in ipairs(containers) do
+        for _, sound in ipairs(container:GetDescendants()) do
+            -- 排除我們自己的 CustomMusic
+            if sound:IsA("Sound") and sound.Name ~= "CustomMusic" and sound.IsPlaying then
+                sound:Stop()
+                count = count + 1
+            end
+        end
+    end
+
+    StatusLabel.Text = "已停止 " .. count .. " 個遊戲音效"
+    StatusLabel.TextColor3 = Color3.fromRGB(250, 180, 50)
+    print("已停止 " .. count .. " 個遊戲音效")
+end
+
+-- 綁定停止遊戲音效按鈕
+StopGameSoundButton.MouseButton1Click:Connect(function()
+    StopAllGameSounds()
+end)
+
+-- 縮小功能邏輯
+MinimizeButton.MouseButton1Click:Connect(function()
+    if isMinimized then
+        -- 展開
+        MainFrame:TweenSize(UDim2.new(0, 350, 0, 200), "Out", "Quad", 0.3, true)
+        MinimizeButton.Text = "-"
+        isMinimized = false
+        
+        -- 顯示內容元件
+        InputBox.Visible = true
+        PlayButton.Visible = true
+        StopButton.Visible = true
+        StopGameSoundButton.Visible = true 
+        StatusLabel.Visible = true
+    else
+        -- 縮小
+        if playlistOpen then -- 如果歌單開著，先關掉
+            PlaylistFrame:TweenSize(UDim2.new(0, 300, 0, 0), "Out", "Quad", 0.3, true)
+            PlaylistToggle:TweenPosition(UDim2.new(1, 10, 0, 5), "Out", "Quad", 0.3, true)
+            PlaylistToggle.Text = "♫"
+            playlistOpen = false
+        end
+        -- 高度變成 40，並隱藏內部元件
+        MainFrame:TweenSize(UDim2.new(0, 350, 0, 40), "Out", "Quad", 0.3, true)
+        MinimizeButton.Text = "+"
+        isMinimized = true
+        
+        -- 隱藏內容元件
+        InputBox.Visible = false
+        PlayButton.Visible = false
+        StopButton.Visible = false
+        StopGameSoundButton.Visible = false 
+        StatusLabel.Visible = false
+    end
+end)
+
+-- 展開/收起歌單
+PlaylistToggle.MouseButton1Click:Connect(function()
+    if isMinimized then -- 如果在縮小狀態，強制先展開主視窗
+        MainFrame:TweenSize(UDim2.new(0, 350, 0, 200), "Out", "Quad", 0.3, true)
+        MinimizeButton.Text = "-"
+        isMinimized = false
+        
+        InputBox.Visible = true
+        PlayButton.Visible = true
+        StopButton.Visible = true
+        StopGameSoundButton.Visible = true 
+        StatusLabel.Visible = true
+        
+        wait(0.3) -- 等待主視窗展開
+    end
+    
+    playlistOpen = not playlistOpen
+    
+    if playlistOpen then
+        PlaylistFrame:TweenSize(UDim2.new(0, 300, 0, 300), "Out", "Quad", 0.3, true) 
+        PlaylistToggle:TweenPosition(UDim2.new(1, 10, 0, -30), "Out", "Quad", 0.3, true)
+        PlaylistToggle.Text = "x"
+    else
+        PlaylistFrame:TweenSize(UDim2.new(0, 300, 0, 0), "Out", "Quad", 0.3, true)
+        PlaylistToggle:TweenPosition(UDim2.new(1, 10, 0, 5), "Out", "Quad", 0.3, true)
+        PlaylistToggle.Text = "♫"
+    end
+end)
+
+-- 關閉按鈕事件
+CloseButton.MouseButton1Click:Connect(function()
+    StopMusic()
+    ScreenGui:Destroy()
+end)
+
+-- 播放按鈕事件
+PlayButton.MouseButton1Click:Connect(function()
+    local musicId = InputBox.Text
+    if musicId ~= "" and tonumber(musicId) then
+        PlayMusic(musicId)
+    else
+        StatusLabel.Text = "請輸入有效的音樂 ID！"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
+
+-- 停止按鈕事件
+StopButton.MouseButton1Click:Connect(function()
+    StopMusic()
+end)
+
+print("✅ 音樂播放器（歌單分區已完成）已加載！")
