@@ -227,7 +227,7 @@ UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.Parent = ScrollFrame
 
--- ⬇️⬇️⬇️ 歌單數據 (已移除 Devito di sonno) ⬇️⬇️⬇️
+-- ⬇️⬇️⬇️ 歌單數據 (Showtime 已移動) ⬇️⬇️⬇️
 -- 使用 isHeader = true 來標記這是一個分區標題，而不是歌曲
 local Playlist = {
     -- === 主分區：所有遊戲皆可用 ===
@@ -252,7 +252,7 @@ local Playlist = {
     {id = "98337901681441", name = "Mente ma (吃子彈囉）"},
     {id = "76760458012018", name = "Patches of violet"},
     {id = "95455387850059", name = "It’s tv time"},
-    {id = "90041337158549", name = "Showtime"},
+    -- 90041337158549 - Showtime 已移除
     {id = "83496790534252", name = "Law 1:you cannot win"},
     {id = "138740386053898", name = "Atsituab Leinad"},
     {id = "130235435158600", name = "Last goodbye (remix)"},
@@ -267,7 +267,7 @@ local Playlist = {
     {id = "117064854285259", name = "Finale"},
 
 
-    -- 1.2 子分區：die of death 
+    -- 1.2 子分區：die of death (Showtime 已加入)
     {isHeader = true, name = "💀 die of death", color = Color3.fromRGB(200, 100, 100)}, 
     {id = "76471063800650", name = "The angel bleeds"},
     {id = "124255779263026", name = "Y2K"},
@@ -281,6 +281,7 @@ local Playlist = {
     {id = "85741102771968", name = "Insanely"},
     {id = "127402449230009", name = "Orchestraful"},
     {id = "118951773927701", name = "One bounce"},
+    {id = "90041337158549", name = "Showtime"}, -- 移到這裡
 
     -- === 主分區：非所有遊戲可用 (所有歌曲保持不變) ===
     {isHeader = true, name = "⚠️ 2. 非所有遊戲可用", color = Color3.fromRGB(255, 200, 0)},
@@ -324,6 +325,7 @@ for i, item in ipairs(Playlist) do
         SongButton.ZIndex = 5
         SongButton.Parent = ScrollFrame
         
+        -- 圓角
         local SongCorner = Instance.new("UICorner")
         SongCorner.CornerRadius = UDim.new(0, 8)
         SongCorner.Parent = SongButton
@@ -502,4 +504,4 @@ StopButton.MouseButton1Click:Connect(function()
     StopMusic()
 end)
 
-print("✅ 音樂播放器（歌單已更新，Devito 已刪除）已加載！")
+print("✅ 音樂播放器（歌單已更新，Showtime 已移至 die of death）已加載！")
