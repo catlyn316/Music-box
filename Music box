@@ -283,6 +283,7 @@ local Playlist = {
     {id = "127402449230009", name = "Orchestraful"},
     {id = "118951773927701", name = "One bounce"},
     {id = "90041337158549", name = "Showtime"}, -- 移到這裡
+    {id = "86837341159366", name = "Vigilante shootdown"},
 
     -- === 主分區：非所有遊戲可用 (所有歌曲保持不變) ===
     {isHeader = true, name = "⚠️ 2. 非所有遊戲可用", color = Color3.fromRGB(255, 200, 0)},
