@@ -267,6 +267,7 @@ local Playlist = {
     {id = "117064854285259", name = "Finale"},
     {id = "124479118051302", name = "weather girl"},
     {id = "123599193694841", name = "creation of harted"},
+    {id = "113265542312403", name = "plead"},
 
     -- 1.2 子分區：die of death (Showtime 已加入)
     {isHeader = true, name = "💀 die of death", color = Color3.fromRGB(200, 100, 100)}, 
