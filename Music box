@@ -266,7 +266,7 @@ local Playlist = {
     {id = "70631807399198", name = "Megalo strike back"},
     {id = "117064854285259", name = "Finale"},
     {id = "124479118051302", name = "weather girl"},
-
+    {id = "123599193694841", name = "creation of harted"},
 
     -- 1.2 子分區：die of death (Showtime 已加入)
     {isHeader = true, name = "💀 die of death", color = Color3.fromRGB(200, 100, 100)}, 
