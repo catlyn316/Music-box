@@ -265,6 +265,7 @@ local Playlist = {
     {id = "127980613700097", name = "Order up"},
     {id = "70631807399198", name = "Megalo strike back"},
     {id = "117064854285259", name = "Finale"},
+    {id = "80366561193643", name = "Hopes and dreams"},
     {id = "124479118051302", name = "weather girl"},
     {id = "123599193694841", name = "creation of harted"},
     {id = "113265542312403", name = "plead"},
